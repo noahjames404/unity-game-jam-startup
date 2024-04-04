@@ -11,15 +11,52 @@ namespace com.deathbox.jam
         [SerializeField]
         int coins; 
         [SerializeField]
-        List<Card> cards;
+        List<ACard> cards;
         [SerializeField]
         string playerName;
         [SerializeField]
         bool isMine = false;
+        [SerializeField]
+        bool hasShield = false;
 
-        public int Coins { get => coins; set => coins = value; }
-        public List<Card> Cards { get => cards; set => cards = value; }
+        public event Action OnDefended;
+        public event Action<int> OnTakeDamage;
+        public event Action<int> OnReduceCoins;
+        public event Action<int> OnIncreaseCoins;
+
+        public Player(int coins)
+        {
+            this.coins = coins;
+        }
+
+        public void TakeDamage(int coins)
+        {
+            if(HasShield)
+            {
+                OnDefended?.Invoke();
+                HasShield = false;
+                return;
+            }
+            this.coins -= coins;
+            OnTakeDamage?.Invoke(coins);
+        }
+
+        public void ReduceCoins(int coins)
+        {
+            coins -= coins;
+            OnReduceCoins?.Invoke(coins);
+        }
+
+        public void IncreaseCoins(int coins)
+        {
+            coins += coins;
+            OnIncreaseCoins?.Invoke(coins);
+        }
+
+        public int Coins { get => coins; }
+        public List<ACard> Cards { get => cards; set => cards = value; }
         public string PlayerName { get => playerName; set => playerName = value; }
         public bool IsMine { get => isMine; set => isMine = value; }
+        public bool HasShield { get => hasShield; set => hasShield = value; }
     }
 }

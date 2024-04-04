@@ -73,18 +73,16 @@ namespace com.deathbox.jam
 
         void LoadPlayers()
         {
-            players.Add(new Player()
-            {
-                Coins = startingCoin,
-                Cards = new List<Card>(),
+            players.Add(new Player(startingCoin)
+            { 
+                Cards = new List<ACard>(),
                 PlayerName = "You",
                 IsMine = true
             });
 
-            players.Add(new Player()
-            {
-                Coins = startingCoin,
-                Cards = new List<Card>(),
+            players.Add(new Player(startingCoin)
+            { 
+                Cards = new List<ACard>(),
                 PlayerName = "Evil Person"
             });
 
@@ -126,15 +124,20 @@ namespace com.deathbox.jam
 
         public void Open()
         {
-            if(deathbox.Unbox(out int amount))
+            Open(activePlayer);
+        }
+
+        public void Open(Player player)
+        {
+            if (deathbox.Unbox(out int amount))
             {
-                Debug.Log($"{activePlayer.PlayerName} Receives Damage after opening box: {amount}");
+                Debug.Log($"{player.PlayerName} Receives Damage after opening box: {amount}");
                 ReduceCoin(amount);
             }
             else
             {
-                activePlayer.Coins += amount;
-                Debug.Log($"{activePlayer.PlayerName} Receives Coins after opening box: {amount}");
+                player.IncreaseCoins(amount);
+                Debug.Log($"{player.PlayerName} Receives Coins after opening box: {amount}");
             }
             CreateDeathbox();
             FinishMove();
@@ -142,7 +145,7 @@ namespace com.deathbox.jam
 
         public void ReduceCoin(int amount)
         {
-            activePlayer.Coins -= amount; 
+            activePlayer.ReduceCoins(amount); 
             if (activePlayer.Coins <= 0)
             {
                 Debug.LogError($"{activePlayer.PlayerName} is Dead!");
