@@ -19,6 +19,9 @@ namespace com.deathbox.jam
         [SerializeField]
         float riskMultiplier = 1;
 
+        [SerializeField]
+        int currentRound = 1;
+
         static GameManager instance;
 
         [SerializeField]
@@ -43,6 +46,7 @@ namespace com.deathbox.jam
             ShuffleFirstMove();
             CreateDeathbox();
             InitiateNextMove();
+            UpdatePlayerInfo();
         }
 
         private void InitiateNextMove()
@@ -61,6 +65,7 @@ namespace com.deathbox.jam
         {
            
             StartCoroutine(NextMoveRoutine());
+            UpdatePlayerInfo();
         }
 
         IEnumerator NextMoveRoutine()
@@ -161,6 +166,13 @@ namespace com.deathbox.jam
         public static GameManager GetInstance()
         {
             return instance;
-        } 
+        }
+
+         void UpdatePlayerInfo()
+        {
+            Debug.Log($"Coins: {activePlayer.Coins}\n" +
+                        $"Round: {currentRound}\n" +
+                        $"Wipeout: {1}");
+        }  
     }
 }
