@@ -12,9 +12,12 @@ namespace com.deathbox.jam
         bool isBad;
         [SerializeField]
         int amount;
+        [SerializeField]
+        float riskMultiplier =  1;
 
         public bool IsBad { get => isBad; set => isBad = value; }
         public int Amount { get => amount; set => amount = value; }
+        public float RiskMultiplier { get => riskMultiplier; set => riskMultiplier = value; }
 
         public bool Unbox(out int amount)
         {
@@ -22,12 +25,12 @@ namespace com.deathbox.jam
             return isBad;
         }
 
-        public static DeathBox CreateBox(int minAmount,int maxAmount, float multiplier = 1)
+        public static DeathBox CreateBox(int minAmount,int maxAmount, float riskMultiplier)
         {
             return new DeathBox()
             {
                 isBad = UnityEngine.Random.Range(0, 100) < 80 ? true : false,
-                amount = (int)(UnityEngine.Random.Range(minAmount, maxAmount) * multiplier)
+                amount = (int)(UnityEngine.Random.Range(minAmount, maxAmount) * riskMultiplier)
             };
         }
     }
