@@ -41,15 +41,15 @@ namespace com.deathbox.jam
             OnTakeDamage?.Invoke(coins);
         }
 
-        public void ReduceCoins(int coins)
+        public void ReduceCoins(int reduceAmount)
         {
-            coins -= coins;
+            coins -= reduceAmount;
             OnReduceCoins?.Invoke(coins);
         }
 
-        public void IncreaseCoins(int coins)
+        public void IncreaseCoins(int increaseAmount)
         {
-            coins += coins;
+            coins += increaseAmount;
             OnIncreaseCoins?.Invoke(coins);
         }
 

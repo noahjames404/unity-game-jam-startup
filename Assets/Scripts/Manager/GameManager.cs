@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace com.deathbox.jam
 {
@@ -21,6 +23,11 @@ namespace com.deathbox.jam
 
         [SerializeField]
         int currentRound = 1;
+
+        [SerializeField]
+        TextMeshProUGUI  coinsText;
+        [SerializeField]
+        TextMeshProUGUI  roundText;
 
         static GameManager instance;
 
@@ -42,11 +49,19 @@ namespace com.deathbox.jam
 
         void Start()
         {
+            PrepareDisplayInfo();
             LoadPlayers();
             ShuffleFirstMove();
             CreateDeathbox();
             InitiateNextMove();
             UpdatePlayerInfo();
+        }
+
+        private void PrepareDisplayInfo(){
+            GameObject coinsObject = GameObject.Find("Coins");
+            coinsText = coinsObject.GetComponent<TextMeshProUGUI>();
+            GameObject roundObject = GameObject.Find("Round");
+            roundText = roundObject.GetComponent<TextMeshProUGUI>();
         }
 
         private void InitiateNextMove()
@@ -153,6 +168,10 @@ namespace com.deathbox.jam
             activePlayer.ReduceCoins(amount); 
             if (activePlayer.Coins <= 0)
             {
+                //still bugy
+                //GameObject gameOverObject = GameObject.Find("GameOver");
+                //TextMeshProUGUI gameOverTextComponent = gameOverObject.GetComponent<TextMeshProUGUI>();
+                //gameOverObject.SetActive(true);
                 Debug.LogError($"{activePlayer.PlayerName} is Dead!");
             }
         }
@@ -170,9 +189,11 @@ namespace com.deathbox.jam
 
          void UpdatePlayerInfo()
         {
-            Debug.Log($"Coins: {activePlayer.Coins}\n" +
-                        $"Round: {currentRound}\n" +
-                        $"Wipeout: {1}");
+            if(activePlayer.IsMine){
+                coinsText.text = "Coins: " + activePlayer.Coins.ToString();
+                currentRound++;
+            }
+            roundText.text = "Round: " + currentRound.ToString();
         }  
     }
 }
