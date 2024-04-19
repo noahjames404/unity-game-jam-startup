@@ -28,6 +28,8 @@ namespace com.deathbox.jam
         TextMeshProUGUI  coinsText;
         [SerializeField]
         TextMeshProUGUI  roundText;
+        Vector3 infoVector = Vector3.zero;
+        bool isPlayerAlive = true;
 
         static GameManager instance;
 
@@ -37,10 +39,12 @@ namespace com.deathbox.jam
         List<Player> players;
         [SerializeField]
         DeathBox deathbox;
+        RestartScreen restartScreen;
         Queue<Player> playersQueue = new();
 
         public event Action<Player> OnActivePlayer;
         public event Action<Player> OnNextActivePlayer;
+         public GameObject canvas;
 
         private void Awake()
         {
@@ -78,7 +82,8 @@ namespace com.deathbox.jam
 
         public void FinishMove()
         {
-           
+            string activeTurn = (activePlayer.IsMine ? "Opponents" : "Your") + " turn";
+            TextManager.CreateTextMeshPro(activeTurn, infoVector, canvas.transform, 1f);
             StartCoroutine(NextMoveRoutine());
             UpdatePlayerInfo();
         }
@@ -86,7 +91,7 @@ namespace com.deathbox.jam
         IEnumerator NextMoveRoutine()
         {
             OnNextActivePlayer?.Invoke(playersQueue.Peek());
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(1.5f);
             playersQueue.Enqueue(activePlayer);
             InitiateNextMove(); 
         }
@@ -159,19 +164,23 @@ namespace com.deathbox.jam
                 player.IncreaseCoins(amount);
                 Debug.Log($"{player.PlayerName} Receives Coins after opening box: {amount}");
             }
-            CreateDeathbox();
-            FinishMove();
+            if(isPlayerAlive)
+            {
+                CreateDeathbox();
+                FinishMove();
+            }
+            else{
+                ShowRestartScreen();
+            }
         }
 
         public void ReduceCoin(int amount)
         {
             activePlayer.ReduceCoins(amount); 
-            if (activePlayer.Coins <= 0)
+            if (activePlayer.IsMine && activePlayer.Coins <= 0)
             {
-                //still bugy
-                //GameObject gameOverObject = GameObject.Find("GameOver");
-                //TextMeshProUGUI gameOverTextComponent = gameOverObject.GetComponent<TextMeshProUGUI>();
-                //gameOverObject.SetActive(true);
+                isPlayerAlive = false;
+                TextManager.CreateTextMeshPro("GameOver", infoVector, canvas.transform, 1f);
                 Debug.LogError($"{activePlayer.PlayerName} is Dead!");
             }
         }
@@ -194,6 +203,15 @@ namespace com.deathbox.jam
                 currentRound++;
             }
             roundText.text = "Round: " + currentRound.ToString();
-        }  
+        }
+
+        void ShowRestartScreen()
+        {
+            if (restartScreen == null)
+            {
+                restartScreen = new GameObject("RestartScreen").AddComponent<RestartScreen>();
+            }
+            restartScreen.Show();
+        }
     }
 }
