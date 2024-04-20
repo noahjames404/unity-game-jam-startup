@@ -29,7 +29,6 @@ namespace com.deathbox.jam
         [SerializeField]
         TextMeshProUGUI  roundText;
         Vector3 infoVector = Vector3.zero;
-        bool isPlayerAlive = true;
 
         static GameManager instance;
 
@@ -39,12 +38,14 @@ namespace com.deathbox.jam
         List<Player> players;
         [SerializeField]
         DeathBox deathbox;
+        [SerializeField]
+        GameObject cardPrefab;
         RestartScreen restartScreen;
         Queue<Player> playersQueue = new();
 
         public event Action<Player> OnActivePlayer;
         public event Action<Player> OnNextActivePlayer;
-         public GameObject canvas;
+        public GameObject canvas;
 
         private void Awake()
         {
@@ -135,8 +136,34 @@ namespace com.deathbox.jam
         public void Draw()
         {
             //draw card 
-            ReduceCoin(drawCost);
-            FinishMove();
+            if(activePlayer.Cards.Count < 5){
+                ReduceCoin(drawCost);
+                drawCard();
+                FinishMove();
+            } else 
+            {
+                TextManager.CreateTextMeshPro("You can't draw more Cards", infoVector, canvas.transform, 1f);
+            }
+        }
+
+        void drawCard()
+        {
+            //Create random card
+            ACard drawnCard = CardFactory.CreateRandomCard();
+            Debug.LogError(drawnCard);
+
+            //Fill CardParam
+            CardParam cardParam = new CardParam();
+            cardParam.Caster = activePlayer; 
+            cardParam.Target = null; 
+            cardParam.Box = deathbox; 
+            activePlayer.Cards.Add(drawnCard);
+
+            if (activePlayer.IsMine){
+                //Instantiate the card as GO
+                Transform panelTransform = canvas.transform.Find("Panel");
+                GameObject cardObject = Instantiate(cardPrefab, panelTransform);
+            }
         }
 
         public void Pass()
@@ -164,14 +191,8 @@ namespace com.deathbox.jam
                 player.IncreaseCoins(amount);
                 Debug.Log($"{player.PlayerName} Receives Coins after opening box: {amount}");
             }
-            if(isPlayerAlive)
-            {
-                CreateDeathbox();
-                FinishMove();
-            }
-            else{
-                ShowRestartScreen();
-            }
+            CreateDeathbox();
+            FinishMove();
         }
 
         public void ReduceCoin(int amount)
@@ -179,7 +200,7 @@ namespace com.deathbox.jam
             activePlayer.ReduceCoins(amount); 
             if (activePlayer.IsMine && activePlayer.Coins <= 0)
             {
-                isPlayerAlive = false;
+                ShowRestartScreen();
                 TextManager.CreateTextMeshPro("GameOver", infoVector, canvas.transform, 1f);
                 Debug.LogError($"{activePlayer.PlayerName} is Dead!");
             }
