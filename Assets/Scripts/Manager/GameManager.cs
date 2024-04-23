@@ -41,6 +41,7 @@ namespace com.deathbox.jam
         [SerializeField]
         GameObject cardPrefab;
         RestartScreen restartScreen;
+        UIControls uIControls;
         Queue<Player> playersQueue = new();
 
         public event Action<Player> OnActivePlayer;
@@ -54,6 +55,7 @@ namespace com.deathbox.jam
 
         void Start()
         {
+            uIControls = FindObjectOfType<UIControls>();
             PrepareDisplayInfo();
             LoadPlayers();
             ShuffleFirstMove();
@@ -109,7 +111,7 @@ namespace com.deathbox.jam
             players.Add(new Player(startingCoin)
             { 
                 Cards = new List<ACard>(),
-                PlayerName = "Evil Person"
+                PlayerName = "Opponent"
             });
 
             Debug.Log("Loading Players");
@@ -160,10 +162,12 @@ namespace com.deathbox.jam
             activePlayer.Cards.Add(drawnCard);
 
             if (activePlayer.IsMine){
-                //Instantiate the card as GO
+                //Instantiate the card as a GO
                 Transform panelTransform = canvas.transform.Find("Panel");
                 GameObject cardObject = Instantiate(cardPrefab, panelTransform);
+                uIControls.AddCardToHand(drawnCard, cardObject, cardParam, activePlayer);
             }
+
         }
 
         public void Pass()
